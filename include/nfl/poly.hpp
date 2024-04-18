@@ -213,7 +213,7 @@ public:
     void ntt_pow_phi(poly &op);
     void invntt_pow_invphi(poly&);
     static bool ntt(value_type* x, const value_type* wtab, const value_type* winvtab, value_type  const p);
-    static bool cntt(value_type* x, const value_type* wtab, const value_type*  wintab, value_type const p);
+    static bool cntt(value_type* x, const value_type* wtab, const value_type*  winvtab, value_type const p);
     static bool inv_ntt(value_type *x, const value_type* const inv_wtab, const value_type* const inv_winvtab, value_type invK, value_type const p);
 
   private:

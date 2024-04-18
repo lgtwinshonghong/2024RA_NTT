@@ -531,152 +531,60 @@ template<class T, size_t Degree, size_t NbModuli> bool poly<T, Degree, NbModuli>
   return true;
 }
 
+
 //Jonghyun's hand make order ntt code
-template<class T, size_t Degree, size_t NbModuli> bool poly<T,Degree,NbModuli>::core::cntt(value_type* x, const value_type*wtab, const value_type*  winvtab, value_type const p)
-{
+template<class T, size_t Degree, size_t NbModuli>
+bool poly<T, Degree, NbModuli>::core::cntt(value_type* x, const value_type* wtab, const value_type* winvtab, value_type const p) {
+    #ifdef CHECK_STRICTMOD
+    for (size_t i = 0; i < Degree; i++) { // Degree로 변경
+        ASSERT_STRICTMOD(x[i] < p);
+    }
+    #endif
 
-#ifdef CHECK_STRICTMOD
-   for(size_t i =0; i < degree; i++){
-    ASSERT_STRICTMOD(x[i] < p );
-   }
+    if (Degree == 1) return true;
 
-#endif
+    if (Degree == 2) {
+        value_type u0 = x[0], u1 = x[1];
+        value_type t0 = u0 + u1, t1 = u0 - u1;
+        t0 -= (t0 >= 2*p) ? 2*p : 0;
+        t1 += (t1 < 0) ? 2*p : 0;
+        x[0] = t0;
+        x[1] = t1;
+        return true;
+    }
 
-#ifdef NTT_STRICMOD
-  value_type* x_orig = x;
-#endif
+    size_t M = Degree; // Degree로 변경
+    while (M > 1) {
+        for (size_t n = 0; n < M; n += 4) {
+            value_type* x_n = x + n;
+            // Forward transform for pairs
+            for (size_t k = 0; k < 4; k += 2) {
+                value_type u0 = x_n[k], u1 = x_n[k+1];
+                value_type v0 = u0 + u1, v1 = u0 - u1;
+                v0 -= (v0 >= 2*p) ? 2*p : 0;
+                v1 += (v1 < 0) ? 2*p : 0;
+                x_n[k] = v0;
+                x_n[k+1] = v1;
+            }
+        }
+        M /= 2;  // Reduce the problem size
+    }
 
-    if(degree == 1)
-      return true;
+    #ifdef NTT_STRICTMOD
+    for (size_t i = 0; i < Degree; i++) { // Degree로 변경
+        x[i] -= (x[i] >= p) ? p : 0;
+        ASSERT_STRICTMOD(x[i] < p);
+    }
+    #endif
 
-    //number 2 seung
-    if(degree == 2)
-     {
-      value_type u0 = x[0];
-      value_type u1 = x[1];
-      value_type t0 = u0 + u1;
-      value_type t1 = u0 - u1;
-      t0 -= (t0 >= 2*p) ? (2*p) : 0;
-      t1 += (typename std::make_signed<value_type>::type)( t1 < 0) ? (2*p) : 0;
-      x[0] = t0;
-      x[1] = t1;
-      return true;
-     }
-
-const size_t M = ops::ntt_loop<CC_SIMD,poly>::run(x,wtab,winvtab,p);
-size_t r_odd =0;
-size_t r_even = M - 1;
-while(r_odd < r_even)
-{
-   value_type u0 = x[4 * r_odd];
-   value_type u1 = x[4 * r_odd + 1];
-   value_type u2 = x[4 * r_odd + 2];
-   value_type u3 = x[4 * r_odd + 3];
-
-    value_type v0 = u0 + u2;
-    v0 -= (v0 >= 2*p) ? (2*p) : 0;
-    value_type v2 = u0 - u2; 
-    v2 += ((signed_value_type) v2 < 0) ? (2*p) : 0; 
-
-    value_type v1 = u1 + u3; 
-    v1 -= (v1 >= 2*p) ? (2*p) : 0; 
-    value_type t = u1 - u3 + 2*p; 
-
-    value_type q = ((greater_value_type) t * winvtab[1]) >> params<T>::kModulusRepresentationBitsize; 
-    value_type v3 = t * wtab[1] - q * p; 
-
-    value_type z0 = v0 + v1; 
-    z0 -= (z0 >= 2*p) ? (2*p) : 0; 
-    value_type z1 = v0 - v1; 
-    z1 += ((signed_value_type) z1 < 0) ? (2*p) : 0; 
-
-    value_type z2 = v2 + v3; 
-    z2 -= (z2 >= 2*p) ? (2*p) : 0; 
-    value_type z3 = v2 - v3; 
-    z3 += ((signed_value_type) z3 < 0) ? (2*p) : 0; 
-
-    x[4 * r_odd] = z0; 
-    x[4 * r_odd + 1] = z1; 
-    x[4 * r_odd + 2] = z2; 
-    x[4 * r_odd + 3] = z3; 
-
-    
-    u0 = x[4 * r_even];
-    u1 = x[4 * r_even + 1];
-    u2 = x[4 * r_even + 2];
-    u3 = x[4 * r_even + 3];
-
-    v0 = u0 + u2; 
-    v0 -= (v0 >= 2*p) ? (2*p) : 0;
-    v2 = u0 - u2; 
-    v2 += ((signed_value_type) v2 < 0) ? (2*p) : 0; 
-
-    v1 = u1 + u3; 
-    v1 -= (v1 >= 2*p) ? (2*p) : 0;
-    t = u1 - u3 + 2*p;
-
-    q = ((greater_value_type) t * winvtab[1]) >> params<T>::kModulusRepresentationBitsize; 
-    v3 = t * wtab[1] - q * p; 
-
-    z0 = v0 + v1; 
-    z0 -= (z0 >= 2*p) ? (2*p) : 0;
-    z1 = v0 - v1;
-    z1 += ((signed_value_type) z1 < 0) ? (2*p) : 0; 
-
-    z2 = v2 + v3;
-    z2 -= (z2 >= 2*p) ? (2*p) : 0;
-    z3 = v2 - v3;
-    z3 += ((signed_value_type) z3 < 0) ? (2*p) : 0;
-
-    x[4 * r_even] = z0;
-    x[4 * r_even + 1] = z1;
-    x[4 * r_even + 2] = z2;
-    x[4 * r_even + 3] = z3;
-
-    r_odd++;
-    r_even--;
+    return true;
 }
 
-// final stage calculate
-for (size_t r = 0; r < M; r++)
-{
-    value_type u0 = x[4 * r];
-    value_type u1 = x[4 * r + 1];
-    value_type u2 = x[4 * r + 2];
-    value_type u3 = x[4 * r + 3];
 
-    value_type v0 = u0 + u2; 
-    v0 -= (v0 >= 2*p) ? (2*p) : 0; 
-    value_type v2 = u0 - u2; 
-    v2 += ((signed_value_type) v2 < 0) ? (2*p) : 0; 
 
-    value_type v1 = u1 + u3;
-    v1 -= (v1 >= 2*p) ? (2*p) : 0;
-    value_type t = u1 - u3 + 2*p;
-
-    value_type q = ((greater_value_type) t * winvtab[1]) >> params<T>::kModulusRepresentationBitsize; 
-    value_type v3 = t * wtab[1] - q * p;
-
-    value_type z0 = v0 + v1;
-    z0 -= (z0 >= 2*p) ? (2*p) : 0;
-    value_type z1 = v0 - v1;
-    z1 += ((signed_value_type) z1 < 0) ? (2*p) : 0;
-
-    value_type z2 = v2 + v3;
-    z2 -= (z2 >= 2*p) ? (2*p) : 0;
-    value_type z3 = v2 - v3;
-    z3 += ((signed_value_type) z3 < 0) ? (2*p) : 0;
-
-    x[4 * r] = z0;
-    x[4 * r + 1] = z1;
-    x[4 * r + 2] = z2;
-    x[4 * r + 3] = z3;
-}
-   return true;
-}
 // Inverse NTT: replaces NTT values representation by the classic
 // coefficient representation, parameters are the same as for ntt() with
-// inv_wtab, inv_winvtab tables for the inverse operation and invK the
+// inv_wtab, invwinvtab tables for the inverse operation and invK the
 // inverse of the polynomialDegree
 template<class T, size_t Degree, size_t NbModuli> inline bool poly<T, Degree, NbModuli>::core::inv_ntt(value_type * x, const value_type* const inv_wtab, const value_type* const inv_winvtab,
     const value_type invK, value_type const p)
