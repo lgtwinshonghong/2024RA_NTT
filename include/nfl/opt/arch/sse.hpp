@@ -250,6 +250,11 @@ struct ntt_loop_body<simd::sse, poly, uint16_t>
 template <class poly, class T>
 struct ntt_loop<simd::sse, poly, T>: ntt_loop<simd::serial, poly, T> {};
 
+template <class poly, class T>
+struct cntt_loop<simd::sse, poly, T>: cntt_loop<simd::serial, poly, T> {};
+
+
+
 template<class poly>
 struct ntt_loop_sse_unrolled {
   using value_type = typename poly::value_type;

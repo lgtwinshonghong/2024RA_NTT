@@ -1,0 +1,1 @@
+/usr/bin/c++  -march=native -std=c++11 -DNDEBUG -O3 -march=native -mtune=native -funroll-loops -rdynamic CMakeFiles/prng_demo.dir/prng_demo_main.cpp.o -o prng_demo  -Wl,-rpath,/home/jhpark/2024RA_NTT/build ../libnfllib.so -lgmp -lmpfr

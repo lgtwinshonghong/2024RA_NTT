@@ -1,0 +1,20 @@
+In file included from /home/jhpark/2024RA_NTT/include/nfl/opt/arch/sse.hpp:5,
+                 from /home/jhpark/2024RA_NTT/include/nfl/opt/arch/avx2.hpp:5,
+                 from /home/jhpark/2024RA_NTT/include/nfl/ops.hpp:293,
+                 from /home/jhpark/2024RA_NTT/include/nfl/poly.hpp:26,
+                 from /home/jhpark/2024RA_NTT/include/nfl.hpp:17,
+                 from /home/jhpark/2024RA_NTT/tests/multi0.cpp:3:
+/home/jhpark/2024RA_NTT/include/nfl/algos.hpp: In static member function ‘static size_t nfl::ops::cntt_loop<nfl::simd::serial, poly, T>::cntt_run(nfl::ops::cntt_loop<nfl::simd::serial, poly, T>::value_type*, const value_type*&, const value_type*&, nfl::ops::cntt_loop<nfl::simd::serial, poly, T>::value_type)’:
+/home/jhpark/2024RA_NTT/include/nfl/algos.hpp:291:1: warning: no return statement in function returning non-void [-Wreturn-type]
+  291 | }
+      | ^
+In file included from /home/jhpark/2024RA_NTT/include/nfl/opt/arch/sse.hpp:5,
+                 from /home/jhpark/2024RA_NTT/include/nfl/opt/arch/avx2.hpp:5,
+                 from /home/jhpark/2024RA_NTT/include/nfl/ops.hpp:293,
+                 from /home/jhpark/2024RA_NTT/include/nfl/poly.hpp:26,
+                 from /home/jhpark/2024RA_NTT/include/nfl.hpp:17,
+                 from /home/jhpark/2024RA_NTT/tests/multi1.cpp:2:
+/home/jhpark/2024RA_NTT/include/nfl/algos.hpp: In static member function ‘static size_t nfl::ops::cntt_loop<nfl::simd::serial, poly, T>::cntt_run(nfl::ops::cntt_loop<nfl::simd::serial, poly, T>::value_type*, const value_type*&, const value_type*&, nfl::ops::cntt_loop<nfl::simd::serial, poly, T>::value_type)’:
+/home/jhpark/2024RA_NTT/include/nfl/algos.hpp:291:1: warning: no return statement in function returning non-void [-Wreturn-type]
+  291 | }
+      | ^

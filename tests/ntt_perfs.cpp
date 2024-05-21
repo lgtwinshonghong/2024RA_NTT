@@ -4,6 +4,7 @@
 #include "tools.h"
 
 #define REPETITIONS 50000
+// #define REPETITIONS 1
 
 typedef unsigned int uint128_t __attribute__((mode(TI)));
 
@@ -128,7 +129,10 @@ class poly_tests_proxy
   {
     return P::core::ntt(x, wtab, winvtab, p);
   }
-
+  static inline bool cntt(value_type* x, const value_type* wtab, const value_type* winvtab, value_type const p,int num)
+  {
+    return P::core::cntt(x, wtab, winvtab, p,num);
+  }
   static inline value_type* get_omegas(P& p) { return &p.base.omegas[0][0]; }
   static inline value_type* get_shoupomegas(P& p) { return &p.base.shoupomegas[0][0]; }
 };
@@ -147,37 +151,40 @@ int run()
   using poly_proxy_t = nfl::tests::poly_tests_proxy<poly_t>;
 
   auto start = std::chrono::steady_clock::now();
+  auto end = std::chrono::steady_clock::now();
   poly_t *resa = alloc_aligned<poly_t, 32>(REPETITIONS);
   std::fill(resa, resa + REPETITIONS, 0);
 
-  std::fill(resa, resa + REPETITIONS, nfl::uniform());
-  start = std::chrono::steady_clock::now();
-  for (unsigned i = 0; i < REPETITIONS ; i++)
-  {
-    poly_t& p = resa[i];
-    ntt_new(&p(0, 0), poly_proxy_t::get_omegas(p), poly_proxy_t::get_shoupomegas(p), degree, p.get_modulus(0));
-  }
-  auto end = std::chrono::steady_clock::now();
+   std::fill(resa, resa + REPETITIONS, nfl::uniform());
+   start = std::chrono::steady_clock::now();
+   for (unsigned i = 0; i < REPETITIONS ; i++)
+   {
+     poly_t& p = resa[i];
+     ntt_new(&p(0, 0), poly_proxy_t::get_omegas(p), poly_proxy_t::get_shoupomegas(p), degree, p.get_modulus(0));
+    }
+   end = std::chrono::steady_clock::now();
   std::cout << "Time per NTT (org): " << get_time_us(start, end, REPETITIONS) << " us" << std::endl;
 
   std::fill(resa, resa + REPETITIONS, nfl::uniform());
   start = std::chrono::steady_clock::now();
   for (unsigned i = 0; i < REPETITIONS ; i++)
-  {
-    poly_t& p = resa[i];
-    poly_proxy_t::ntt(&p(0, 0), poly_proxy_t::get_omegas(p), poly_proxy_t::get_shoupomegas(p), p.get_modulus(0));
-  }
-  end = std::chrono::steady_clock::now();
+   {
+     poly_t& p = resa[i];
+     poly_proxy_t::ntt(&p(0, 0), poly_proxy_t::get_omegas(p), poly_proxy_t::get_shoupomegas(p), p.get_modulus(0));
+   }
+   end = std::chrono::steady_clock::now();
   std::cout << "Time per NTT (lib): " << get_time_us(start, end, REPETITIONS) << " us" << std::endl;
 
-
+  int count = 0;
   std::fill(resa, resa + REPETITIONS, nfl::uniform());
   start = std::chrono::steady_clock::now();
+
   for (unsigned i = 0; i < REPETITIONS; i++)
-  {
+    {
     poly_t& p = resa[i];
-    ntt_new(&p(0,0), poly_proxy_t::get_omegas(p), poly_proxy_t::get_shoupomegas(p),degree,p.get_modulus(0));
+    poly_proxy_t::cntt(&p(0, 0), poly_proxy_t::get_omegas(p), poly_proxy_t::get_shoupomegas(p),p.get_modulus(0),count);
   }
+
   end = std::chrono::steady_clock::now();
   std::cout << "Time per ntt (cnt): " <<get_time_us(start, end, REPETITIONS) << "us" << std::endl;
   return 0;

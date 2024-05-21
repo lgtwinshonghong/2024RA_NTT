@@ -1,0 +1,1 @@
+/usr/bin/c++  -march=native -std=c++11 -DNDEBUG -O3 -march=native -mtune=native -funroll-loops -rdynamic CMakeFiles/nfl_sub8_60_uint32_t.dir/nfl_sub8_60_uint32_t.cpp.o -o nfl_sub8_60_uint32_t  -Wl,-rpath,/home/jhpark/2024RA_NTT/build ../libnfllib.so -lgmp -lmpfr

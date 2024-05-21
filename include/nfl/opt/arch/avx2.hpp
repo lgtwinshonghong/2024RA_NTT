@@ -157,6 +157,11 @@ template <class poly, class T>
 struct ntt_loop<simd::avx2, poly, T>: public ntt_loop<simd::sse, poly, T>
 { };
 
+
+template <class poly, class T>
+struct cntt_loop<simd::avx2, poly, T>: public cntt_loop<simd::sse, poly, T>
+{ };
+
 template<class poly>
 struct ntt_loop_body<simd::avx2, poly, uint32_t> {
   using value_type = typename poly::value_type;
@@ -293,13 +298,70 @@ struct ntt_loop_avx2_unrolled {
   }
 };
 
+
+template<class poly>
+struct cntt_loop_avx2_unrolled {
+  using value_type = typename poly::value_type;
+  using greater_value_type = typename poly::greater_value_type;
+  using simd_type = simd::avx2;
+
+  static constexpr size_t J = static_log2<poly::degree>::value-2;
+  static constexpr size_t elt_count = simd_type::elt_count<value_type>::value;
+  static constexpr size_t elt_count_sse = simd::sse::elt_count<value_type>::value;
+
+#ifdef __GNUC__
+  __attribute__((optimize("no-tree-vectorize")))
+#endif
+  static size_t run(value_type* x, const value_type* &wtab,
+      const value_type* &winvtab, const value_type p) {
+    ntt_loop_body<simd::avx2, poly, value_type> body_avx2(p);
+    ntt_loop_body<simd::sse, poly, value_type> body_sse(p);
+    ntt_loop_body<simd::serial, poly, value_type> body(p);
+
+    for (size_t w = 0; w < J-1; w++) {
+      const size_t M = 1 << w;
+      const size_t N = poly::degree >> w;
+      for (size_t r = 0; r < M; r++) {
+        const size_t Navx2 = ((N/2)/elt_count)*elt_count;
+        for (size_t i = 0; i < Navx2; i += elt_count) {
+          body_avx2(&x[N * r + i], &x[N * r + i + N/2], &winvtab[i], &wtab[i]);
+        }
+        if (Navx2 != (N/2)) {
+          const size_t i = Navx2;
+          body_sse(&x[N * r + i], &x[N * r + i + N/2], &winvtab[i], &wtab[i]);
+        }
+      }
+      wtab += N / 2;
+      winvtab += N / 2;
+    }
+
+    // Special case for w=J-1: not able to fill a register of data!
+    constexpr size_t w = J-1;
+    constexpr size_t M = 1 << w;
+    constexpr size_t N = poly::degree >> w;
+    for (size_t r = 0; r < M; r++) {
+      for (size_t i = 0; i < N/2; i++) {
+        body(&x[N * r + i], &x[N * r + i + N/2], &winvtab[i], &wtab[i]);
+      }
+    }
+    wtab += N / 2;
+    winvtab += N / 2;
+
+    return 1<<J;
+  }
+};
+
+
+
 template<class poly>
 struct ntt_loop<simd::avx2, poly, uint32_t>: public ntt_loop_avx2_unrolled<poly>
 { };
 
+
 template<class poly>
-struct ntt_loop<simd::avx2, poly, uint16_t>: public ntt_loop_avx2_unrolled<poly>
+struct cntt_loop<simd::avx2, poly, uint32_t>: public cntt_loop_avx2_unrolled<poly>
 { };
+
 
 //
 // MULMOD_SHOUP

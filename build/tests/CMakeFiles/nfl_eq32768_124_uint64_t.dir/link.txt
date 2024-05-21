@@ -1,0 +1,1 @@
+/usr/bin/c++  -march=native -std=c++11 -DNDEBUG -O3 -march=native -mtune=native -funroll-loops -rdynamic CMakeFiles/nfl_eq32768_124_uint64_t.dir/nfl_eq32768_124_uint64_t.cpp.o -o nfl_eq32768_124_uint64_t  -Wl,-rpath,/home/jhpark/2024RA_NTT/build ../libnfllib.so -lgmp -lmpfr

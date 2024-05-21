@@ -174,7 +174,6 @@ public:
   // Therefore, serialization should not be used in the rare cases a big-endian
   // machine will use NFLlib and communicate serialized data to a little-endian
   // machine.
-  
   /* manual serializers
   */
   void serialize_manually(std::ostream& outputstream) {
@@ -186,7 +185,7 @@ public:
 
   /* serializer (cereal)
   */
-  template<class Archive> void serialize(Archive & archive) { 
+  template<class Archive> void serialize(Archive & archive) {
     archive( _data ); // serialize coefficients by passing them to the archive
   }
 
@@ -213,7 +212,7 @@ public:
     void ntt_pow_phi(poly &op);
     void invntt_pow_invphi(poly&);
     static bool ntt(value_type* x, const value_type* wtab, const value_type* winvtab, value_type  const p);
-    static bool cntt(value_type* x, const value_type* wtab, const value_type*  winvtab, value_type const p);
+    static bool cntt(value_type* x, const value_type* wtab, const value_type*  winvtab, value_type const p, int num);
     static bool inv_ntt(value_type *x, const value_type* const inv_wtab, const value_type* const inv_winvtab, value_type invK, value_type const p);
 
   private:

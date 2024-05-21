@@ -1,0 +1,1 @@
+/usr/bin/c++  -march=native -std=c++11 -DNDEBUG -O3 -march=native -mtune=native -funroll-loops -rdynamic CMakeFiles/ntt_multi.dir/multi0.cpp.o CMakeFiles/ntt_multi.dir/multi1.cpp.o -o ntt_multi

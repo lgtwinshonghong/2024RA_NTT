@@ -1,0 +1,1 @@
+/usr/bin/c++  -march=native -std=c++11 -DNDEBUG -O3 -march=native -mtune=native -funroll-loops -rdynamic CMakeFiles/poly_serialize_manually128_14_uint16_t.dir/poly_serialize_manually128_14_uint16_t.cpp.o -o poly_serialize_manually128_14_uint16_t  -Wl,-rpath,/home/jhpark/2024RA_NTT/build ../libnfllib.so -lgmp -lmpfr
